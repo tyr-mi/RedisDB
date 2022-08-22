@@ -1,4 +1,5 @@
 using RedisDB.Data;
+using RedisDB.RabbitMQ;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(opt =>
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
 
 builder.Services.AddScoped<IPlatformRepo, RedisPlatformRepo>();
+
+builder.Services.AddScoped<IMessageProcedure, RabbitMQProcedure>();
 
 var app = builder.Build();
 

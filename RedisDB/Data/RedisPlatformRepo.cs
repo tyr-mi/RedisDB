@@ -1,4 +1,5 @@
 ﻿using RedisDB.Models;
+using RedisDB.RabbitMQ;
 using StackExchange.Redis;
 using System.Text.Json;
 
@@ -8,10 +9,12 @@ namespace RedisDB.Data
     {
 
         private readonly IConnectionMultiplexer _redis;
+        private readonly IMessageProcedure _rabbitmq;
 
-        public RedisPlatformRepo(IConnectionMultiplexer redis)
+        public RedisPlatformRepo(IConnectionMultiplexer redis, IMessageProcedure rabbitmq)
         {
             _redis = redis;
+            _rabbitmq = rabbitmq;
         }
 
         public void CreatePlatform(Platform plat)
@@ -29,6 +32,8 @@ namespace RedisDB.Data
 
             db.HashSet("hashplatform", new HashEntry[]
                 {new HashEntry(plat.Id, serialPlat)});
+
+            _rabbitmq.SendMessage(plat);
         }
 
         public IEnumerable<Platform?>? GetAllPlatforms()
